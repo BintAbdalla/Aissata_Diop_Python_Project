@@ -1,10 +1,26 @@
-from validator import Validator
+from tarfile import REGULAR_TYPES
+from urllib import request
+# Remplacer l'import du validator
+# from validator import Validator
+from Validator.custom_validator import CustomValidator
 
 class Service:
     def __init__(self, lignes_valides=None, lignes_invalides=None):
         self.lignes_valides = lignes_valides or []
         self.lignes_invalides = lignes_invalides or []
-        self.validator = Validator()
+        
+        # Définir les règles de validation
+        self.rules = {
+            "Numero": "required|numeric",
+            "Nom": "required|string",  
+            "Prenom": "required|string",
+            "Date_de_naissance": "required|date",
+            "Classe": "required|string",
+            "Note": "required|numeric|between:0,20"
+        }
+        
+        # Utiliser notre validateur personnalisé
+        self.validator = CustomValidator(self.rules)
     
     def afficher_informations(self, type_info="valide"):
         """Affiche les informations valides ou invalides selon le choix"""
@@ -20,7 +36,7 @@ class Service:
             print(f"Numéro: {ligne['Numero']}")
             print(f"Nom: {ligne['Nom']}")
             print(f"Prénom: {ligne.get('Prenom', ligne.get('Prénom', ''))}")
-            print(f"Date de naissance: {ligne.get('Date de naissance', '')}")
+            print(f"Date de naissance: {ligne.get('Date_de_naissance', '')}")
             print(f"Classe: {ligne['Classe']}")
             print(f"Notes: {ligne['Note']}")
             if type_info.lower() == "invalide" and 'erreurs' in ligne:
@@ -34,8 +50,8 @@ class Service:
                 print("=" * 50)
                 print(f"Numéro: {ligne['Numero']}")
                 print(f"Nom: {ligne['Nom']}")
-                print(f"Prénom: {ligne.get('Prenom', ligne.get('Prénom', ''))}")
-                print(f"Date de naissance: {ligne.get('Date de naissance', '')}")
+                print(f"Prénom: {ligne.get('Prenom', ligne.get('Prenom', ''))}")
+                print(f"Date de naissance: {ligne.get('Date_de_naissance', '')}")
                 print(f"Classe: {ligne['Classe']}")
                 print(f"Notes: {ligne['Note']}")
                 if 'erreurs' in ligne:
@@ -51,8 +67,8 @@ class Service:
             print("\n" + "="*50)
             print(f"Numéro: {ligne['Numero']}")
             print(f"Nom: {ligne['Nom']}")
-            print(f"Prénom: {ligne.get('Prenom', ligne.get('Prénom', ''))}")
-            print(f"Date de naissance: {ligne.get('Date de naissance', '')}")
+            print(f"Prénom: {ligne.get('Prenom', ligne.get('Prenom', ''))}")
+            print(f"Date de naissance: {ligne.get('Date_de_naissance', '')}")
             print(f"Classe: {ligne['Classe']}")
             print(f"Notes: {ligne['Note']}")
             if 'erreurs' in ligne:
@@ -65,8 +81,8 @@ class Service:
         
         nouvelle_ligne['Numero'] = input("Numéro (format: 7 caractères alphanumériques): ")
         nouvelle_ligne['Nom'] = input("Nom: ")
-        nouvelle_ligne['Prenom'] = input("Prénom: ")
-        nouvelle_ligne['Date de naissance'] = input("Date de naissance (format: JJ/MM/AAAA): ")
+        nouvelle_ligne['Prenom'] = input("Prenom: ")
+        nouvelle_ligne['Date_de_naissance'] = input("Date de naissance (format: JJ/MM/AAAA): ")
         nouvelle_ligne['Classe'] = input("Classe (format: XemY où X=3-6 et Y=A ou B): ")
         nouvelle_ligne['Note'] = input("Notes (format: Matiere[note|note:moyenne]#...): ")
         
@@ -77,7 +93,7 @@ class Service:
             self.lignes_invalides.append(nouvelle_ligne)
             print("\nInformation ajoutée aux données invalides. Erreurs trouvées:", erreurs)
         else:
-            nouvelle_ligne['Date de naissance'] = self.validator.formater_date(nouvelle_ligne['Date de naissance'])
+            nouvelle_ligne['Date_de_naissance'] = self.validator.formater_date(nouvelle_ligne['Date_de_naissance'])
             nouvelle_ligne['Classe'] = self.validator.formater_classe(nouvelle_ligne['Classe'])
             self.lignes_valides.append(nouvelle_ligne)
             print("\nInformation ajoutée avec succès aux données valides.")
@@ -94,7 +110,7 @@ class Service:
                 
                 # Demande de modification des champs
                 print("\nEntrez les nouvelles valeurs (ou appuyez sur Entrée pour garder l'ancienne valeur):")
-                for champ in ['Numero', 'Nom', 'Prenom', 'Date de naissance', 'Classe', 'Note']:
+                for champ in ['Numero', 'Nom', 'Prenom', 'Date_de_naissance', 'Classe', 'Note']:
                     nouvelle_valeur = input(f"{champ} [{ligne.get(champ, '')}]: ")
                     if nouvelle_valeur.strip():
                         nouvelle_ligne[champ] = nouvelle_valeur
@@ -107,7 +123,7 @@ class Service:
                     print("\nL'information reste invalide. Nouvelles erreurs:", erreurs)
                 else:
                     # Formatage et transfert vers les données valides
-                    nouvelle_ligne['Date de naissance'] = self.validator.formater_date(nouvelle_ligne['Date de naissance'])
+                    nouvelle_ligne['Date_de_naissance'] = self.validator.formater_date(nouvelle_ligne['Date_de_naissance'])
                     nouvelle_ligne['Classe'] = self.validator.formater_classe(nouvelle_ligne['Classe'])
                     self.lignes_valides.append(nouvelle_ligne)
                     self.lignes_invalides.pop(index)
@@ -131,6 +147,6 @@ class Service:
                 self.lignes_invalides.append(ligne)
             else:
                 # Formatter les données valides
-                ligne['Date de naissance'] = self.validator.formater_date(ligne['Date de naissance'])
+                ligne['Date_de_naissance'] = self.validator.formater_date(ligne['Date_de_naissance'])
                 ligne['Classe'] = self.validator.formater_classe(ligne['Classe'])
                 self.lignes_valides.append(ligne)
